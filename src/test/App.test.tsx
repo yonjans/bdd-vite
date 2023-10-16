@@ -1,37 +1,67 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { getTodos } from './todos'
+import { failure, success } from '../handler'
+import { Client } from 'pg'
 
-const businessHours = [9, 17]
 
-function purchase() {
-  const currentHour = new Date().getHours()
-  const [open, close] = businessHours
+const jsonTestData = {
+  key1: 'value1',
+  key2: 'value2',
+  key3: [1, 2, 3],
+};
 
-  if (currentHour > open && currentHour < close)
-    return { message: 'Success' }
+vi.mock('pg', () => {
+  const Client = vi.fn()
+  Client.prototype.connect = vi.fn()
+  Client.prototype.query = vi.fn()
+  Client.prototype.end = vi.fn()
 
-  return { message: 'Error' }
-}
+  return { Client }
+})
 
-describe('purchasing flow', () => {
+vi.mock('./handlers.js', () => {
+  return {
+    success: vi.fn(),
+    failure: vi.fn(),
+  }
+})
+
+describe('get a list of todo items', () => {
+  let client:any
+
   beforeEach(() => {
-    vi.useFakeTimers()
+    client = new Client()
   })
 
   afterEach(() => {
-    vi.useRealTimers()
+    vi.clearAllMocks()
   })
 
-  it('allows purchases within business hours', () => {
-    const date = new Date(2000, 1, 1, 13)
-    vi.setSystemTime(date)
+  it('should return items successfully', async () => {
+    client.query.mockResolvedValueOnce({ rows: [], rowCount: 0 })
 
-    expect(purchase()).toEqual({ message: 'Success' })
+    await getTodos({ event: { body: JSON.stringify(jsonTestData) }, context: { getRemainingTimeInMillis: () => 1000 } });
+
+    expect(client.connect).toBeCalledTimes(1)
+    expect(client.query).toBeCalledWith('SELECT * FROM todos;')
+    expect(client.end).toBeCalledTimes(1)
+
+    expect(success).toBeCalledWith({
+      message: '0 item(s) returned',
+      data: [],
+      status: true,
+    })
   })
 
-  it('disallows purchases outside of business hours', () => {
-    const date = new Date(2000, 1, 1, 19)
-    vi.setSystemTime(date)
+  it('should throw an error', async () => {
+    const mError = new Error('Unable to retrieve rows')
+    client.query.mockRejectedValueOnce(mError)
 
-    expect(purchase()).toEqual({ message: 'Error' })
+    await getTodos({ event: { body: JSON.stringify(jsonTestData) }, context: { getRemainingTimeInMillis: () => 1000 } });
+
+    expect(client.connect).toBeCalledTimes(1)
+    expect(client.query).toBeCalledWith('SELECT * FROM todos;')
+    expect(client.end).toBeCalledTimes(1)
+    expect(failure).toBeCalledWith({ message: mError, status: false })
   })
 })
