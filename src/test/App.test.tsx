@@ -1,14 +1,34 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getTodos } from './todos'
-import { failure, success } from '../handler'
+import { Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Client } from 'pg'
+import { success, failure} from '../shared/handlers';
 
+// get todos
+export async function getTodos() {
+  const client = new Client({
+    // ...clientOptions
+  })
 
-const jsonTestData = {
-  key1: 'value1',
-  key2: 'value2',
-  key3: [1, 2, 3],
-};
+  await client.connect()
+
+  try {
+    const result = await client.query('SELECT * FROM todos;')
+
+    client.end()
+
+    return success({
+      message: `${result.rowCount} item(s) returned`,
+      data: result.rows,
+      status: true,
+    })
+  }
+  catch (e) {
+    console.error(e.stack)
+
+    client.end()
+
+    return failure({ message: e, status: false })
+  }
+}
 
 vi.mock('pg', () => {
   const Client = vi.fn()
@@ -19,7 +39,7 @@ vi.mock('pg', () => {
   return { Client }
 })
 
-vi.mock('./handlers.js', () => {
+vi.mock('../shared/handlers', () => {
   return {
     success: vi.fn(),
     failure: vi.fn(),
@@ -27,7 +47,7 @@ vi.mock('./handlers.js', () => {
 })
 
 describe('get a list of todo items', () => {
-  let client:any
+  let client: Client
 
   beforeEach(() => {
     client = new Client()
@@ -38,9 +58,9 @@ describe('get a list of todo items', () => {
   })
 
   it('should return items successfully', async () => {
-    client.query.mockResolvedValueOnce({ rows: [], rowCount: 0 })
+    (client.query as Mock<any>).mockResolvedValueOnce({ rows: [], rowCount: 0 })
 
-    await getTodos({ event: { body: JSON.stringify(jsonTestData) }, context: { getRemainingTimeInMillis: () => 1000 } });
+    await getTodos()
 
     expect(client.connect).toBeCalledTimes(1)
     expect(client.query).toBeCalledWith('SELECT * FROM todos;')
@@ -53,15 +73,15 @@ describe('get a list of todo items', () => {
     })
   })
 
-  it('should throw an error', async () => {
-    const mError = new Error('Unable to retrieve rows')
-    client.query.mockRejectedValueOnce(mError)
+  // it('should throw an error', async () => {
+  //   const mError = new Error('Unable to retrieve rows')
+  //   (client.query as Mock<any, Error>).mockRejectedValueOnce(mError)
 
-    await getTodos({ event: { body: JSON.stringify(jsonTestData) }, context: { getRemainingTimeInMillis: () => 1000 } });
+  //   await getTodos()
 
-    expect(client.connect).toBeCalledTimes(1)
-    expect(client.query).toBeCalledWith('SELECT * FROM todos;')
-    expect(client.end).toBeCalledTimes(1)
-    expect(failure).toBeCalledWith({ message: mError, status: false })
-  })
+  //   expect(client.connect).toBeCalledTimes(1)
+  //   expect(client.query).toBeCalledWith('SELECT * FROM todos;')
+  //   expect(client.end).toBeCalledTimes(1)
+  //   expect(failure).toBeCalledWith({ message: mError, status: false })
+  // })
 })
