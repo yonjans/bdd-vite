@@ -22,7 +22,9 @@ export async function getTodos() {
     })
   }
   catch (e) {
-    console.error(e.stack)
+    if (e instanceof Error) {
+      console.error(e.stack)
+    }
 
     client.end()
 
