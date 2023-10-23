@@ -15,19 +15,26 @@ export declare type JsonAPIErrorResp = {
 export declare type JsonAPIResp<T> = JsonAPIObjectResp<T> | JsonAPIErrorResp
 
 export declare interface IJsonAPI {
-    get<T>(path: string, headers: Map<string, string> = new Map()): Promise<JsonAPIObjectResp<T>>
+    get<T>(
+        path: string,
+        headers: Map<string, string> = new Map(),
+        shouldUseToken: boolean = true
+    ): Promise<JsonAPIObjectResp<T>>
     post<T, U>(
         path: string,
         body: T,
         headers: Map<string, string> = new Map(),
+        shouldUseToken: boolean = true
     ): Promise<JsonAPIObjectResp<U>>
     put<T, U>(
         path: string,
         body: T,
         headers: Map<string, string> = new Map(),
+        shouldUseToken: boolean = true
     ): Promise<JsonAPIObjectResp<U>>
     delete(
         path: string,
         headers: Map<string, string> = new Map(),
+        shouldUseToken: boolean = true
     ): Promise<JsonAPIObjectResp<{}>>
 }
