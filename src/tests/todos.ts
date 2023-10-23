@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { success, failure } from '../handler';
+import { success, failure } from '@shared/handlers';
 
 interface Event {
   body: string;

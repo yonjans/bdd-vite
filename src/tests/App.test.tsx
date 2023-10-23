@@ -1,6 +1,6 @@
 import { Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Client } from 'pg'
-import { success, failure} from '../shared/handlers';
+import { success, failure } from '@shared/handlers';
 
 // get todos
 export async function getTodos() {
@@ -39,7 +39,7 @@ vi.mock('pg', () => {
   return { Client }
 })
 
-vi.mock('../shared/handlers', () => {
+vi.mock('@shared/handlers', () => {
   return {
     success: vi.fn(),
     failure: vi.fn(),
