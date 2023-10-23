@@ -8,7 +8,9 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@shared': path.join(__dirname, "src", "shared")
+      '@shared': path.join(__dirname, "src", "shared"),
+      '@clients': path.join(__dirname, "src", "clients"),
+      '@repositories': path.join(__dirname, "src", "repositories"),
     }
   },
   test: {

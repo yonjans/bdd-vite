@@ -15,7 +15,10 @@
     "jsx": "react-jsx",
     "types": ["vitest/globals", "@testing-library/jest-dom"],
     "paths": {
-      "@shared/*": ["./src/shared/*"]
+      "@clients/*": ["./src/clients/*"],
+      "@models/*": ["./src/models/*"],
+      "@repositories/*": ["./src/repositories/*"],
+      "@shared/*": ["./src/shared/*"],
     },
 
     /* Linting */
