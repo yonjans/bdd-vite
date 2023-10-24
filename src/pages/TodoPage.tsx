@@ -28,7 +28,10 @@ const TodoPage = () => {
     useEffect(() => {
         const fetchTodo = async () => {
             try {
-                setTodo(await todoRepository.get(params.id!))
+                const todo = await todoRepository.get(params.id!)
+                console.log(todo)
+                setTodo(todo)
+                setIsLoading(false)
             } catch (err) {
                 // TODO: show message from error
                 setError('Failed to load todo')
@@ -37,7 +40,7 @@ const TodoPage = () => {
             }
         }
       
-          fetchTodo();
+        fetchTodo();
     }, [])
     
     return isLoading ? <p>Loading</p>

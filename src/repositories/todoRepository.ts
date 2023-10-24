@@ -4,7 +4,7 @@ import { IJsonAPI } from '@clients/api/types';
 import type { Todo } from '@models/todo';
 import type { ICRUDRepository } from '@repositories/types';
 
-interface TodoData {
+export interface TodoData {
     title: string
 }
 
