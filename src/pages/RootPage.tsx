@@ -1,12 +1,10 @@
-import React from "react"
 import { Link } from "react-router-dom"
 
-const RootPage = ({children}: React.PropsWithChildren) => {
-    return <p>
-        This is root page
-        <Link to={'/todos'}>Todos</Link>
-        {children}
-    </p>
+const RootPage = () => {
+    return <>
+        This is root page.<br/>
+        Go to <Link to={'/todos'}>Todos</Link>
+    </>
 }
 
 export default RootPage
