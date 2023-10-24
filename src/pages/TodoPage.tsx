@@ -10,7 +10,7 @@ declare type TodoPageParam = {
     id: string
 }
 
-export const TodoPage = () => {
+const TodoPage = () => {
 
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -44,3 +44,5 @@ export const TodoPage = () => {
         : !_.isNull(error) ? <p>{error}</p>
             : <>{todo && <TodoRC todo={todo} />}</>
 }
+
+export default TodoPage
